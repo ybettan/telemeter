@@ -16,6 +16,12 @@ spec:
         k8s-app: telemeter-server
     spec:
       containers:
+      #FIXME: sidecar for tcpdump - remove for production
+      - command:
+        - /bin/sleep
+        - infinity
+        image: corfr/tcpdump
+        name: tcpdump
       - command:
         - /usr/bin/telemeter-server
         - --join=telemeter-server
@@ -25,6 +31,7 @@ spec:
         - --listen-cluster=0.0.0.0:8082
         - --shared-key=/etc/pki/service/tls.key
         - --authorize=http://localhost:8083
+        #- --forward-url=http://10.19.41.1:32502/api/v1/receive
         env:
         - name: NAME
           valueFrom:
@@ -66,7 +73,6 @@ spec:
         - mountPath: /etc/telemeter
           name: secret-telemeter-server
           readOnly: false
-      serviceAccountName: telemeter-server
       volumes:
       - name: secret-telemeter-server
         secret:
